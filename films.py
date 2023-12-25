@@ -1,4 +1,5 @@
 # import libraries
+import numpy as np
 import pandas as pd
 
 # import modules
@@ -12,32 +13,41 @@ def getWatchedFilms():
 
   df = pd.merge(watched_df, ratings_df, on='Letterboxd URI', how='left', suffixes=('', '_y'))
   df.drop(['Date_y', 'Name_y', 'Year_y'], axis=1, inplace=True)
-  df = df.head(5) # for small-batch testing
 
+  df = pd.merge(df, diary_df, on=['Name', 'Year', 'Date'], how='outer', suffixes=('', '_z'))
+  df.drop(['Letterboxd URI_z', 'Rating_z'], axis=1, inplace=True)
+
+  # df = df.head(50) # for small-batch testing
   return df
+
+# df = getWatchedFilms()
+# print(df[['Name', 'Year', 'Rating', 'Letterboxd URI']])
 
 # fill dataframe with film info
 def getFilmInfo(df):
+  df['Director'] = None
+  df['Cast'] = None
+  df['Genre'] = None
+
   for index, row in df.iterrows():
-    director, cast, country, language, genres = bs.getFilmInfo(row['Letterboxd URI'])
-    # df.loc[df['Slug'] == slug, ['Director', 'Cast', 'Country', 'Language', 'Genres']] = [title, year, director, cast, country, language, genres]
-    df.loc[index, ['Director', 'Country', 'Language']] = [director, country, language]
+    try:
+      director, cast, country, language, genre = bs.getFilmInfo(row['Letterboxd URI'])
+      # director, cast, country, language, genre, rating = bs.getFilmInfo(row['Letterboxd URI'])
+      df.at[index, 'Director'] = tuple(director)
+      df.at[index, 'Cast'] = tuple(cast)
+      df.at[index, 'Country'] = country
+      df.at[index, 'Language'] = language
+      df.at[index, 'Genre'] = tuple(genre)
+      # df.at[index, 'Average Rating'] = rating
+    except Exception as err:
+      print(err, row)
   
   return df
 
-df = getWatchedFilms()
-df = getFilmInfo(df)
-print(df)
+# return complete dataframe
+def getFilms():
+  df = getWatchedFilms()
+  return getFilmInfo(df)
 
-# stats functions
-def numFilms(df):
-  films = len(df)
-
-def numDirectors(df):
-  directors = df['Director'].nunique()
-
-def numCountries(df):
-  countries = df['Country'].nunique()
-
-def numLanguages(df):
-  languages = df['Language'].nunique()
+# df = getFilms()
+# print(df)

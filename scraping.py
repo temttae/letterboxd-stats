@@ -12,21 +12,19 @@ def makeSoup(url):
 def getFilmInfo(url):
   soup = makeSoup(url)
 
-  header = soup.find('section', id='featured-film-header')
-  subheader = header.find('p')
-  # title = header.find('h1').text
-  # year = subheader.find('small', class_='number').text
-  director = subheader.find('span').text
+  crew_section = soup.find('div', id='tab-crew')
+  director_section = crew_section.find('div').find_all('a')
+  director = [director.text for director in director_section]
 
   cast_section = soup.find('div', id='tab-cast').find_all('a', class_='tooltip')
   cast = [actor.text for actor in cast_section]
 
   details_section = soup.find('div', id='tab-details').find_all('a')
-  country = details_section[-2].text
-  language = details_section[-1].text
+  country = details_section[-2].text # FIX THIS (cannot use this index)
+  language = details_section[-1].text # FIX THIS (there are multiple languages)
 
-  genres_section = soup.find('div', id='tab-genres').find('div').find_all('a')
-  genres = [genre.text for genre in genres_section]
+  genre_section = soup.find('div', id='tab-genres').find('div').find_all('a')
+  genre = [genre.text for genre in genre_section]
 
-  # return title, year, director, cast, country, language, genres
-  return director, cast, country, language, genres
+  return director, cast, country, language, genre
+  # return director, cast, country, language, genre, rating
