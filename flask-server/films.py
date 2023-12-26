@@ -17,7 +17,7 @@ def getWatchedFilms():
   df = pd.merge(df, diary_df, on=['Name', 'Year', 'Date'], how='outer', suffixes=('', '_z'))
   df.drop(['Letterboxd URI_z', 'Rating_z'], axis=1, inplace=True)
 
-  # df = df.head(50) # for small-batch testing
+  df = df.head(50) # for small-batch testing
   return df
 
 # df = getWatchedFilms()
